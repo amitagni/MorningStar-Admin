@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+
+	<!-- Default (No TreeCache) -->
+	<!-- -->
+	<!-- <persistence-unit name="amitjava_mscagroup"> -->
+	<persistence-unit name="morningstar">
+		<mapping-file>META-INF/ormdef.xml</mapping-file>
+			<class>com.ms.entity.User</class> 
+			<class>com.ms.entity.StudentReg</class> 
+			<class>com.ms.entity.StudentInfo</class> 
+			<class>com.ms.entity.StudentContactInfo</class> 
+			<class>com.ms.entity.FeeSlip</class> 
+			<class>com.ms.entity.FeeStructure</class> 
+			<class>com.ms.entity.Payment</class> 
+			<class>com.ms.entity.PaidFeeSummary</class> 
+			<class>com.ms.entity.AbacusRegEntity</class>
+			<class>com.ms.entity.AbacusFee</class>
+			<class>com.ms.entity.DayBook</class>
+			<class>com.ms.entity.Account</class>
+			<class>com.ms.entity.InventoryCateoryEntity</class>
+			<class>com.ms.entity.InventoryItem</class>
+			<class>com.ms.entity.Discount</class>
+		<exclude-unlisted-classes />
+	</persistence-unit>
+</persistence>

@@ -1,0 +1,243 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx.xsd     
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd        
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop.xsd     
+    http://www.springframework.org/schema/jee
+    http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+    http://www.springframework.org/schema/rabbit
+ 	http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd  
+ 	http://www.springframework.org/schema/data/mongo
+    http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd
+    http://www.springframework.org/schema/task
+   	http://www.springframework.org/schema/task/spring-task.xsd">
+
+
+
+	<context:component-scan base-package="com.ms,com.ms.interceptor,net.codejava.spring,com.ms.controller,com.ms.service,com.ms.dao,com.ms.util,com.ms.domain,com.ms.dto" />
+                     
+	<context:property-placeholder location="classpath:application.properties"></context:property-placeholder>
+
+
+
+
+	<mvc:annotation-driven />
+
+
+	<!-- your beans declaration goes here -->
+
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+	
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/pages/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+	<!-- Configuring interceptors based on URI -->
+ 	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/dashboard.do"/>
+			<mvc:mapping path="/registration.do"/>
+			<mvc:mapping path="/reg-payment.do"/>
+			<mvc:mapping path="/reg-receipt.do"/>
+			<mvc:mapping path="/admission.do"/>
+			<mvc:mapping path="/fee.do"/>
+			<mvc:mapping path="/fee-payment.do"/>
+			<mvc:mapping path="/fee-reciept.do"/>
+			<mvc:mapping path="/search.do"/>
+			<mvc:mapping path="abacusreg"/>
+			<mvc:mapping path="/abacus-search.do"/>
+			<mvc:mapping path="/abacus-fee.do"/>
+			<mvc:mapping path="/abacus-reciept.do"/>
+			<bean class="com.ms.interceptor.LoginInterceptor"></bean>
+		</mvc:interceptor> 
+	</mvc:interceptors> 
+
+	<bean
+		class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+	<!--- JPA transaction manager -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<!-- <property name="persistenceUnitName" value="amitjava_mscagroup" /> -->
+		<property name="persistenceUnitName" value="morningstar" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="database" value="MYSQL" />
+				<property name="showSql" value="true" />
+			</bean>
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<!--  <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+				<!--  <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>-->
+				<prop key="hibernate.dialect">com.ms.dao.CustomeDialect</prop> 
+			</props>
+		</property>
+	</bean>
+
+	<bean id="entityManagerFactoryReadOnly"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<!-- <property name="persistenceUnitName" value="amitjava_mscagroup" /> -->
+		<property name="persistenceUnitName" value="morningstar" />
+		<property name="dataSource" ref="dataSourceReadOnly" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="database" value="MYSQL" />
+				<property name="showSql" value="true" />
+			</bean>
+		</property>
+		<!-- <property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">com.pwc.dao.CustomeDialect</prop>
+			</props>
+		</property> -->
+	</bean>
+
+
+
+
+	<bean id="mainDataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${jdbc.url}" />
+		<!-- <property name="username" value="amitjava_msadmin" />
+		<property name="password" value="5ILx3l9O2m0h" />
+		 -->
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+
+		<property name="initialSize" value="10" />
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="30" />
+		<property name="minIdle" value="5" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="30000" />
+		<property name="minEvictableIdleTimeMillis" value="50000" />
+		<property name="validationQuery" value="select 1" />
+		<property name="validationInterval" value="10000" />
+		<property name="testOnBorrow" value="true" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="200" />
+	</bean>
+
+	<bean id="mainDataSourceReadOnly" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${jdbc.urlReadOnly}" />
+		<!-- <property name="username" value="amitjava_msadmin" />
+		<property name="password" value="5ILx3l9O2m0h" /> -->
+		
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+
+		<property name="initialSize" value="5" />
+		<property name="maxActive" value="10" />
+		<property name="maxIdle" value="5" />
+		<property name="minIdle" value="5" />
+		<property name="timeBetweenEvictionRunsMillis" value="34000" />
+		<property name="minEvictableIdleTimeMillis" value="55000" />
+		<property name="validationQuery" value="select 1" />
+		<property name="validationInterval" value="34000" />
+		<property name="testOnBorrow" value="true" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="200" />
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+		<property name="targetDataSource" ref="mainDataSource"></property>
+	</bean>
+
+	<bean id="dataSourceReadOnly"
+		class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+		<property name="targetDataSource" ref="mainDataSourceReadOnly"></property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="transactionManagerReadOnly" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactoryReadOnly" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" order="10" />
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="classpath:message" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+	
+	<bean id="userDao" class="com.ms.dao.UserDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+	<bean id="studentRegDao" class="com.ms.dao.StudentRegDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="studentInfoDao" class="com.ms.dao.StudentInfoDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="studentContactInfoDao" class="com.ms.dao.StudentContactInfoDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="paymentDao" class="com.ms.dao.PaymentDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="paymentDescDao" class="com.ms.dao.PaymentDescDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	
+	<bean id="feeStructureDao" class="com.ms.dao.FeeStructureDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="feeSlipDao" class="com.ms.dao.FeeSlipDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="paidFeeSummaryDao" class="com.ms.dao.PaidFeeSummaryDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="abacusRegDao" class="com.ms.dao.AbacusRegDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="abacusFeeDao" class="com.ms.dao.AbacusFeeDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="dayBookDao" class="com.ms.dao.DayBookDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="accountDao" class="com.ms.dao.AccountDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="categoryDao" class="com.ms.dao.CategoryDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="inventoryItemDao" class="com.ms.dao.InventoryItemDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="discountDao" class="com.ms.dao.DiscountDao">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+</beans>
