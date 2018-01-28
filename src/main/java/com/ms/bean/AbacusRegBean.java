@@ -30,6 +30,8 @@ public class AbacusRegBean extends FormBean {
 	private List<State> stateList;
 	private String schoolclass;
 	private List<StudentClass> studentClassList;
+	
+	
 
 	public List<State> getStateList() {
 		return this.stateList;
