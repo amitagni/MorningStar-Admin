@@ -1,6 +1,7 @@
 package com.ms.controller;
 
 import com.ms.bean.AccountBean;
+import com.ms.bean.CategoryBean;
 import com.ms.bean.DayBookBean;
 import com.ms.bean.LedgerBean;
 import com.ms.dto.AccountDTO;
@@ -90,6 +91,31 @@ public class DaybookController {
 		}
 	}
 
+	@RequestMapping(value = {"/account-creation"}, method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView accountCreation(@ModelAttribute("accountBean") AccountBean accountBean, BindingResult bindingResult,
+			Model model, HttpServletRequest request) {
+		//SessionUtil.setPage("DayBook");
+		
+		if (request.getMethod().equalsIgnoreCase(RequestMethod.GET.name())) {
+			
+			String e2 = request.getParameter("err");
+			if (e2 != null && e2.equals("1")) {
+				model.addAttribute("message", "Account with this name already exit");
+				System.out.println("Account with this name already exits");
+			}
+
+			return new ModelAndView("account-creation", "accountBean", accountBean);
+		} else {
+			try {
+				this.saveAccount(accountBean);
+				return new ModelAndView("redirect:/account-creation.do");
+			} catch (Exception arg7) {
+				arg7.printStackTrace();
+				return new ModelAndView("account-creation", "accountBean", accountBean);
+			}
+		}
+	}
+	
 	private boolean checkAccountIfExists(String name) {
 		return this.dayBookService.findAccountByName(name) != null;
 	}
@@ -159,7 +185,8 @@ public class DaybookController {
 				Account account = (Account) arg5.next();
 				SearchResultDTO searchResultDTO = new SearchResultDTO();
 				searchResultDTO.setLabel(account.getAccountName());
-				searchResultDTO.setDescValue(account.getId() + ":" + account.getDescription());
+				searchResultDTO.setValue(account.getId());
+				searchResultDTO.setDescValue(account.getDescription());
 				accountnfoList.add(searchResultDTO);
 			}
 		}
@@ -208,6 +235,7 @@ public class DaybookController {
 
 	private Integer saveAccount(AccountBean accountBean) throws MSException {
 		Account account = new Account();
+		account.setId(accountBean.getId());
 		account.setAccountName(accountBean.getName());
 		account.setDescription(accountBean.getDescription());
 		account.setActive(Byte.valueOf((byte) 1));

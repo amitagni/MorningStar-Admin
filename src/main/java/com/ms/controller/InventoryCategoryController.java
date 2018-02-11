@@ -3,6 +3,8 @@ package com.ms.controller;
 import com.ms.bean.CategoryBean;
 import com.ms.bean.InventoryCateoryBean;
 import com.ms.dto.CategoryDTO;
+import com.ms.dto.SearchResultDTO;
+import com.ms.entity.Account;
 import com.ms.entity.InventoryCateoryEntity;
 import com.ms.entity.InventoryItem;
 import com.ms.service.InventoryService;
@@ -20,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -100,11 +103,58 @@ public class InventoryCategoryController {
 	private boolean checkCategoryIfExists(String name) {
 		return this.inventoryService.findCateoryByName(name) != null;
 	}
+	@RequestMapping(value = {"/category-creation"}, method = {RequestMethod.POST, RequestMethod.GET})
+	public ModelAndView categoryCreation(@ModelAttribute("categoryBean") CategoryBean categoryBean, BindingResult bindingResult,
+			Model model, HttpServletRequest request) {
+		//SessionUtil.setPage("DayBook");
+		
+		if (request.getMethod().equalsIgnoreCase(RequestMethod.GET.name())) {
+			
+			String e2 = request.getParameter("err");
+			if (e2 != null && e2.equals("1")) {
+				model.addAttribute("message", "Account with this name already exit");
+				System.out.println("Account with this name already exits");
+			}
 
+			return new ModelAndView("category-creation", "categoryBean", categoryBean);
+		} else {
+			try {
+				this.saveCategory(categoryBean);
+				return new ModelAndView("redirect:/category-creation.do");
+			} catch (Exception arg7) {
+				arg7.printStackTrace();
+				return new ModelAndView("category-creation", "categoryBean", categoryBean);
+			}
+		}
+	}
+	
+	@RequestMapping({"/fetch-categorylist"})
+	@ResponseBody
+	public List<SearchResultDTO> getAccountList(HttpServletRequest request) {
+		String categoryName = request.getParameter("categoryName");
+		ArrayList accountnfoList = new ArrayList();
+		List accontinfoList = this.inventoryService.findCateoriesByName(categoryName);
+		if (accontinfoList != null) {
+			Iterator arg5 = accontinfoList.iterator();
+
+			while (arg5.hasNext()) {
+				InventoryCateoryEntity account = (InventoryCateoryEntity) arg5.next();
+				SearchResultDTO searchResultDTO = new SearchResultDTO();
+				searchResultDTO.setLabel(account.getCategoryName());
+				searchResultDTO.setValue(account.getId());
+				searchResultDTO.setDescValue(account.getCategoryDescription());
+				accountnfoList.add(searchResultDTO);
+			}
+		}
+
+		return accountnfoList;
+	}
+	
 	private Integer saveCategory(CategoryBean categoryBean) throws MSException {
 		InventoryCateoryEntity category = new InventoryCateoryEntity();
 		category.setCategoryName(categoryBean.getName());
 		category.setCategoryDescription(categoryBean.getDescription());
+		category.setId(categoryBean.getId());
 		category.setActive(Byte.valueOf((byte) 1));
 		this.inventoryService.save(category);
 		return category.getId();
